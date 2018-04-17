@@ -16,10 +16,10 @@ int mem1 = 3;  // memory recall 1
 int mem2 = 4;  // memory recall 2
 
 
-int yMax = 750;
-int yMin = 250;
-int xMax = 750;
-int xMin = 250;
+int yMax = 700;
+int yMin = 300;
+int xMax = 4096;
+int xMin = 0;
 
 int xAxis;  // reading
 int yAxis;
@@ -36,19 +36,23 @@ int yFast = 350;
 
 #define DirectionPin 	(10u)
 #define BaudRate  		(1000000ul)
-#define yID				(1u)
-#define xID       (1u)
+#define yID				(2u)
+#define xID       (3u)
 
-int initial_pos = 512;
+int initial_xPos = 2048;
+int initial_yPos = 512;
 
-int pos = initial_pos;
+int xPos = initial_xPos;
+int yPos = initial_yPos;
+
 
 void setup()
 {
 	ax12a.begin(BaudRate, DirectionPin, &Serial);
-  ax12a.moveSpeed(ID, pos, 50);
+  ax12a.moveSpeed(yID, yPos, 50);
+  ax12a.moveSpeed(xID, xPos, 50);
   delay(200);
-
+  ax12a.setPunch(yID,512);
   xCenter = analogRead(xPin);
   yCenter = analogRead(yPin);
   
@@ -61,10 +65,10 @@ void setup()
 void calculateMove(){
   int xDiff = xAxis - xCenter;
   if (abs(xDiff) > xFast){
-    xMove = 3;
+    xMove = 6;
   }
   else if (abs(xDiff) > xSlow){
-    xMove = 1;
+    xMove = 2;
   }
   else {
     xMove = 0;
@@ -75,7 +79,7 @@ void calculateMove(){
   
   int yDiff = yAxis - yCenter;
   if (abs(yDiff) > yFast){
-    yMove = 3;
+    yMove = 2;
   }
   else if (abs(yDiff) > ySlow){
     yMove = 1;
@@ -95,13 +99,15 @@ void loop()
   yAxis = analogRead(yPin);
   calculateMove();
 
-  if ((pos + yMove) < yMax and (pos + yMove) > yMin){
-  	pos = pos + yMove;
-	  ax12a.moveSpeed(yID, pos, 100);
-
-  if ((pos + xMove) < xMax and (pos + xMove) > xMin){
-    pos = pos + xMove;
- //   ax12a.moveSpeed(xID, pos, 100);
+  if ((yPos + yMove) < yMax and (yPos + yMove) > yMin){
+  	yPos = yPos + yMove;
+	  ax12a.moveSpeed(yID, yPos, 500);
+    delay(2);
+  }
+  if ((xPos + xMove) < xMax and (xPos + xMove) > xMin){
+    xPos = xPos + xMove;
+    ax12a.moveSpeed(xID, xPos, 500);
+    delay(2);
   }
   
 //  Serial.print("x reading = ");
